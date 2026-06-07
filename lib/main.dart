@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -60,7 +62,12 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () {
-                  print('AnyCook Get Started');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const KitchenSetupScreen(),
+                    ),
+                  );
                 },
                 child: const Text(
                   'Get Started',
@@ -74,3 +81,23 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+class KitchenSetupScreen extends StatelessWidget {
+  const KitchenSetupScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFF8F3),
+      appBar: AppBar(
+        title: const Text('My Kitchen'),
+        backgroundColor: const Color(0xFFE85D26),
+        foregroundColor: Colors.white,
+      ),
+      body: const Center(
+        child: Text('', style: TextStyle(fontSize: 20),
+        )
+      )
+
+    );
+  }
+} 
