@@ -83,8 +83,14 @@ class HomeScreen extends StatelessWidget {
 }
 
 
-class KitchenSetupScreen extends StatelessWidget {
+class KitchenSetupScreen extends StatefulWidget {
   const KitchenSetupScreen({super.key});
+
+  @override
+  State<KitchenSetupScreen> createState() => _KitchenSetupScreen();
+}
+
+class _KitchenSetupScreen extends State<KitchenSetupScreen>{
 
   @override
   Widget build(BuildContext context) {
