@@ -1,3 +1,4 @@
+// ignore: unnecessary_import
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -92,20 +93,82 @@ class KitchenSetupScreen extends StatefulWidget {
 
 class _KitchenSetupScreen extends State<KitchenSetupScreen>{
 
+  List<String> selectedAppliances = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F3),
-      appBar: AppBar(
-        title: const Text('My Kitchen'),
-        backgroundColor: const Color(0xFFE85D26),
-        foregroundColor: Colors.white,
-      ),
-      body: const Center(
-        child: Text('', style: TextStyle(fontSize: 20),
-        )
-      )
+     
+      body: Padding(
 
+        padding: const EdgeInsets.all(16),
+        child: Column(
+         crossAxisAlignment:CrossAxisAlignment.start,
+         children: [
+          const Text(
+            'Tap what you have:',
+            
+            style: TextStyle(
+              fontSize:22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              'Oven',
+              'Microwave',
+              'Air Fryer',
+              'Stovetop',
+              'Rice Cooker',
+              'Blender',
+            ].map((appliance){
+              bool isSelected = selectedAppliances.contains(appliance);
+              return GestureDetector(
+                onTap: (){
+                  setState((){
+                    if (isSelected){
+                      selectedAppliances.remove(appliance);
+                    } else {
+                      selectedAppliances.add(appliance);
+                    }
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color:isSelected
+                      ? const Color(0xFFE85D26)
+                      :Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: const Color(0xFFE85D26),
+                      width: 2,
+                    ),
+                  ),
+                  child: Text(
+                    appliance,
+                    style: TextStyle(
+                      color: isSelected
+                       ? Colors.white
+                       : const Color (0xFFE85D26),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+
+      ),
+
+    )
     );
   }
 } 
