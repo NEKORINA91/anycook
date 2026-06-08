@@ -164,6 +164,16 @@ class _KitchenSetupScreen extends State<KitchenSetupScreen>{
               );
             }).toList(),
           ),
+            const SizedBox (height:30),
+            Text(
+              selectedAppliances.isEmpty
+                ? 'no appliances selected yet'
+                : 'Selected:${selectedAppliances.join(',')}',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Color(0xFF888888),
+              ),  
+            ),
         ],
 
       ),
