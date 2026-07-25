@@ -174,6 +174,35 @@ class _KitchenSetupScreen extends State<KitchenSetupScreen>{
                 color: Color(0xFF888888),
               ),  
             ),
+            const SizedBox(height:30),
+            ElevatedButton(
+              onPressed: selectedAppliances.isEmpty
+              ? null
+              : (){
+                // ignore: avoid_print
+                print(selectedAppliances);
+              },
+              style:ElevatedButton.styleFrom(
+                backgroundColor:const Color(0xFFE85D26),
+                disabledBackgroundColor:Colors.grey.shade300,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 16,
+                ),
+                shape:RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: const Text(
+                'Continue',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
         ],
 
       ),
