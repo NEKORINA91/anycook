@@ -179,8 +179,14 @@ class _KitchenSetupScreen extends State<KitchenSetupScreen>{
               onPressed: selectedAppliances.isEmpty
               ? null
               : (){
-                // ignore: avoid_print
-                print(selectedAppliances);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:(context) => PantryScreen(
+                      appliances: selectedAppliances,
+                    ),
+                  ),
+                );
               },
               style:ElevatedButton.styleFrom(
                 backgroundColor:const Color(0xFFE85D26),
@@ -211,3 +217,54 @@ class _KitchenSetupScreen extends State<KitchenSetupScreen>{
     );
   }
 } 
+
+class PantryScreen extends StatefulWidget {
+  final List<String> appliances;
+
+  const PantryScreen({
+    super.key,
+    required this.appliances,
+  });
+
+  @override
+  State<PantryScreen> createState()=> _PantryScreenState();
+  
+}
+class _PantryScreenState extends State<PantryScreen>{
+    @override
+    Widget build(BuildContext context){
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text ('My Pantry'),
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFFE85D26),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.appliances.join(', '),
+              style: TextStyle(
+                fontSize: 16,
+                color: const Color(0xFFE85D26),
+              ),
+            ),
+            const SizedBox(height:30),
+            const Text(
+              'What ingredients do you have?',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ); 
+  }
+}
+
+
