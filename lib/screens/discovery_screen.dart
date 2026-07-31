@@ -5,10 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:anycook/widgets/hero_banner.dart';
 import 'package:anycook/widgets/recipe_card.dart';
 import 'package:anycook/data/sample_recipes.dart';
+import 'package:anycook/screens/pantry_screen.dart';
+import 'package:anycook/screens/login_screen.dart';
+import 'package:anycook/widgets/search_overlay.dart';
 
 
-class DiscoveryScreen extends StatelessWidget {
+class DiscoveryScreen extends StatefulWidget {
   const DiscoveryScreen({super.key});
+
+  @override
+  State<DiscoveryScreen> createState() => _DiscoveryScreenState();
+}
+
+class _DiscoveryScreenState extends State<DiscoveryScreen> {
+  bool _showSearch = false;
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +26,95 @@ class DiscoveryScreen extends StatelessWidget {
     final appState = context.watch<AppState>();
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F3),
-      body: SafeArea(
-        child: ListView(
+      drawer: Drawer(
+        backgroundColor: Colors.white,
+        child: SafeArea(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.grey.shade200,
+                      child: const Icon(Icons.person, color: Color(0xFFE85D26)),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      appState.isLoggedIn ? 'My Account' : 'Guest',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.kitchen, color: Color(0xFFE85D26)),
+                title: const Text('My Appliances'),
+                subtitle: Text(
+                  appState.appliances.isEmpty ? 'Not set' : appState.appliances.join(', '),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const KitchenSetupScreen()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.shopping_basket, color: Color(0xFFE85D26)),
+                title: const Text('My Pantry'),
+                subtitle: Text(
+                  appState.pantryIngredients.isEmpty ? 'Not set' : appState.pantryIngredients.join(', '),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PantryScreen(appliances: appState.appliances),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.settings, color: Color(0xFFE85D26)),
+                title: const Text('Settings'),
+                onTap: () => Navigator.pop(context),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.grey),
+                title: Text(appState.isLoggedIn ? 'Log Out' : 'Log In'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             Row(
               children: [
+                Builder(
+                  builder: (context) => IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
+                ),
+                const Spacer(),
                 CircleAvatar(
                   backgroundColor: Colors.grey.shade200,
                   child: const Icon(Icons.person, color: Color(0xFFE85D26)),
@@ -34,19 +127,22 @@ class DiscoveryScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.search, color: Colors.grey.shade400),
-                  const SizedBox(width: 8),
-                  Text('Search recipes...', style: TextStyle(color: Colors.grey.shade400)),
-                ],
+            GestureDetector(
+              onTap: () => setState(() => _showSearch = true),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.search, color: Colors.grey.shade400),
+                    const SizedBox(width: 8),
+                    Text('Search recipes...', style: TextStyle(color: Colors.grey.shade400)),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -100,6 +196,10 @@ class DiscoveryScreen extends StatelessWidget {
             ),
           ],
         ),
+          ),
+          if (_showSearch)
+            SearchOverlay(onClose: () => setState(() => _showSearch = false)),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: const Color(0xFFE85D26),

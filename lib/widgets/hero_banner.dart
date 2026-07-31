@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:flutter/gestures.dart';
 
 class HeroBanner extends StatefulWidget {
   const HeroBanner({super.key});
@@ -10,6 +12,32 @@ class HeroBanner extends StatefulWidget {
 class _HeroBannerState extends State<HeroBanner> {
   final PageController _controller = PageController();
   int _currentPage = 0;
+
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_currentPage < slides.length - 1) {
+        _currentPage++;
+      } else {
+        _currentPage = 0;
+      }
+      _controller.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
 
   final List<Map<String, String>> slides = [
     {'title': 'Cook with what you have', 'subtitle': 'No shopping trips required'},
@@ -23,6 +51,9 @@ class _HeroBannerState extends State<HeroBanner> {
       children: [
         SizedBox(
           height: 160,
+          child: ScrollConfiguration(
+            behavior: AppScrollBehavior(),
+          
           child: PageView.builder(
             controller: _controller,
             onPageChanged: (index) => setState(() => _currentPage = index),
@@ -57,6 +88,7 @@ class _HeroBannerState extends State<HeroBanner> {
               );
             },
           ),
+          ),
         ),
         const SizedBox(height: 8),
         Row(
@@ -78,4 +110,12 @@ class _HeroBannerState extends State<HeroBanner> {
       ],
     );
   }
+}
+
+class AppScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
 }
