@@ -25,4 +25,11 @@ final List<Recipe> sampleRecipes = [
     requiredIngredients: ['Chicken', 'Onion', 'Garlic', 'Ginger', 'Tomato', 'Oil'],
     timeMinutes: 35,
   ),
+
+  const Recipe(
+    name: 'Buttered Toast',
+    requiredAppliances: ['Stovetop'],
+    requiredIngredients: ['Bread', 'Butter'],
+    timeMinutes: 5,
+  ),
 ];

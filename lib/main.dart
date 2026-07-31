@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:anycook/screens/home_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:anycook/state/app_state.dart';
+import 'package:anycook/screens/login_screen.dart';
 
 void main() {
-  runApp(const AnyCookApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => AppState(),
+      child: const AnyCookApp(),
+    ),
+  );
 }
 
 class AnyCookApp extends StatelessWidget {
@@ -18,7 +25,7 @@ class AnyCookApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      home: const HomeScreen(),
+      home: const LoginScreen(),
     );
   }
 }
