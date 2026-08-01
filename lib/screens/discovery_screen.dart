@@ -8,6 +8,8 @@ import 'package:anycook/data/sample_recipes.dart';
 import 'package:anycook/screens/pantry_screen.dart';
 import 'package:anycook/screens/login_screen.dart';
 import 'package:anycook/widgets/search_overlay.dart';
+import 'package:anycook/widgets/quick_link_card.dart';
+import 'package:anycook/screens/search_results_screen.dart';
 
 
 class DiscoveryScreen extends StatefulWidget {
@@ -147,6 +149,44 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             ),
             const SizedBox(height: 20),
             const HeroBanner(),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                QuickLinkCard(
+                  icon: Icons.star_rounded,
+                  iconColor: const Color(0xFFE85D26),
+                  title: 'Top Rated',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SearchResultsScreen(query: ''),
+                      ),
+                    );
+                  },
+                ),
+                QuickLinkCard(
+                  icon: Icons.history_rounded,
+                  iconColor: Colors.blueGrey,
+                  title: 'Recent',
+                  onTap: () {},
+                ),
+                QuickLinkCard(
+                  icon: Icons.timer_rounded,
+                  iconColor: Colors.green,
+                  title: 'Under 5 Min',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SearchResultsScreen(query: ''),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
             if (appState.isLoggedIn && appState.appliances.isEmpty) ...[
               const SizedBox(height: 16),
               Container(
