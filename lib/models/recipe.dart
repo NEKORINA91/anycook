@@ -88,3 +88,66 @@ class Recipe {
     return MatchTier.red;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Gamification — Chef Rank
+// ---------------------------------------------------------------------------
+
+enum ChefRank {
+  tasteTester,
+  homeCook,
+  sousChef,
+  headChef;
+
+  String get displayName {
+    switch (this) {
+      case ChefRank.tasteTester:
+        return 'Taste Tester';
+      case ChefRank.homeCook:
+        return 'Home Cook';
+      case ChefRank.sousChef:
+        return 'Sous Chef';
+      case ChefRank.headChef:
+        return 'Head Chef';
+    }
+  }
+
+  String get emoji {
+    switch (this) {
+      case ChefRank.tasteTester:
+        return '🥄';
+      case ChefRank.homeCook:
+        return '🍳';
+      case ChefRank.sousChef:
+        return '👨‍🍳';
+      case ChefRank.headChef:
+        return '⭐';
+    }
+  }
+}
+
+/// Pure function: maps a numeric score to a [ChefRank].
+/// Thresholds: 0 → Taste Tester, 100 → Home Cook, 500 → Sous Chef, 2000 → Head Chef.
+ChefRank chefRankFromScore(int score) {
+  if (score >= 2000) return ChefRank.headChef;
+  if (score >= 500) return ChefRank.sousChef;
+  if (score >= 100) return ChefRank.homeCook;
+  return ChefRank.tasteTester;
+}
+
+/// Returns the score threshold for the rank above the current one.
+/// If already Head Chef, returns the Head Chef threshold (2000).
+int nextRankThreshold(int score) {
+  if (score >= 2000) return 2000;
+  if (score >= 500) return 2000;
+  if (score >= 100) return 500;
+  return 100;
+}
+
+/// Returns the score threshold for the current rank (the floor).
+int currentRankThreshold(int score) {
+  if (score >= 2000) return 2000;
+  if (score >= 500) return 500;
+  if (score >= 100) return 100;
+  return 0;
+}
