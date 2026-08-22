@@ -11,13 +11,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -99,13 +99,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(fontSize: 15, color: Color(0xFF888888), height: 1.4),
                 ),
                 const SizedBox(height: 36),
-                const Text('Email', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                const Text('Username', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 6),
                 TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: _fieldDecoration('you@example.com', Icons.mail_outline),
+                  controller: _usernameController,
+                  decoration: _fieldDecoration('Enter your username', Icons.person_outline),
                 ),
+                
                 const SizedBox(height: 18),
                 const Text('Password', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 6),

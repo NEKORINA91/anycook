@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:anycook/widgets/appliance_chip.dart';
-import 'package:anycook/screens/pantry_screen.dart';
+import 'package:anycook/state/app_state.dart';
 
 class KitchenSetupScreen extends StatefulWidget {
   const KitchenSetupScreen({super.key});
@@ -10,7 +11,7 @@ class KitchenSetupScreen extends StatefulWidget {
 }
 
 class _KitchenSetupScreenState extends State<KitchenSetupScreen> {
-  List<String> selectedAppliances = [];
+  late List<String> selectedAppliances;
 
   final List<String> allAppliances = [
     'Oven',
@@ -22,8 +23,22 @@ class _KitchenSetupScreenState extends State<KitchenSetupScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Pre-fill with whatever's already saved, so re-opening this screen
+    // shows your existing selection instead of starting blank.
+    selectedAppliances = List.from(context.read<AppState>().appliances);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Appliances'),
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFFE85D26),
+        elevation: 0,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -66,14 +81,8 @@ class _KitchenSetupScreenState extends State<KitchenSetupScreen> {
               onPressed: selectedAppliances.isEmpty
                   ? null
                   : () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PantryScreen(
-                            appliances: selectedAppliances,
-                          ),
-                        ),
-                      );
+                      context.read<AppState>().setAppliances(selectedAppliances);
+                      Navigator.pop(context);
                     },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFE85D26),
@@ -84,7 +93,7 @@ class _KitchenSetupScreenState extends State<KitchenSetupScreen> {
                 ),
               ),
               child: const Text(
-                'Continue',
+                'Save',
                 style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
