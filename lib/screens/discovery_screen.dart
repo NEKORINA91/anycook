@@ -10,6 +10,9 @@ import 'package:anycook/screens/login_screen.dart';
 import 'package:anycook/widgets/search_overlay.dart';
 import 'package:anycook/widgets/quick_link_card.dart';
 import 'package:anycook/screens/search_results_screen.dart';
+import 'package:anycook/screens/settings_screen.dart';
+import 'package:anycook/screens/profile_screen.dart';
+import 'package:anycook/screens/recipe_upload_screen.dart';
 
 
 class DiscoveryScreen extends StatefulWidget {
@@ -76,15 +79,43 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => PantryScreen(appliances: appState.appliances),
+                      builder: (_) => const PantryScreen(),
                     ),
                   );
                 },
               ),
-              ListTile(
+                            ListTile(
                 leading: const Icon(Icons.settings, color: Color(0xFFE85D26)),
                 title: const Text('Settings'),
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.person, color: Color(0xFFE85D26)),
+                title: const Text('Profile'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.restaurant_menu, color: Color(0xFFE85D26)),
+                title: const Text('Upload Recipe'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RecipeUploadScreen()),
+                  );
+                },
               ),
               const Divider(),
               ListTile(
@@ -153,7 +184,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                QuickLinkCard(
+                                QuickLinkCard(
                   icon: Icons.star_rounded,
                   iconColor: const Color(0xFFE85D26),
                   title: 'Top Rated',
@@ -161,7 +192,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const SearchResultsScreen(query: ''),
+                        builder: (_) => const SearchResultsScreen(filter: 'topRated'),
                       ),
                     );
                   },
@@ -170,7 +201,14 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   icon: Icons.history_rounded,
                   iconColor: Colors.blueGrey,
                   title: 'Recent',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SearchResultsScreen(filter: 'recent'),
+                      ),
+                    );
+                  },
                 ),
                 QuickLinkCard(
                   icon: Icons.timer_rounded,
@@ -180,7 +218,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const SearchResultsScreen(query: ''),
+                        builder: (_) => const SearchResultsScreen(filter: 'under5min'),
                       ),
                     );
                   },
@@ -249,6 +287,16 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Message'),
         ],
+      ),
+            floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFE85D26),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const RecipeUploadScreen()),
+          );
+        },
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

@@ -33,7 +33,7 @@ class _SearchOverlayState extends State<SearchOverlay> {
     widget.onClose();
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => SearchResultsScreen(query: query)),
+      MaterialPageRoute(builder: (_) => SearchResultsScreen(searchQuery: query)),
     );
   }
 

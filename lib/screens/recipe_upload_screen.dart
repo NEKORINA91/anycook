@@ -38,7 +38,8 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
 
   final List<_RecipeIngredient> _ingredients = [_RecipeIngredient()];
   final List<_RecipeStepData> _steps = [_RecipeStepData()];
-  final Set<String> _selectedAppliances = {};
+  String _applianceSearch = '';
+
   final List<String> _photos = [];
 
   final List<String> _applianceOptions = [
@@ -271,26 +272,47 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
                 const SizedBox(height: 24),
                 const Text('Required Appliances', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _applianceOptions.map((appliance) {
-                    final isSelected = _selectedAppliances.contains(appliance);
-                    return SelectableChip(
-                      label: appliance,
-                      isSelected: isSelected,
-                      onTap: () {
-                        setState(() {
-                          if (isSelected) {
-                            _selectedAppliances.remove(appliance);
-                          } else {
-                            _selectedAppliances.add(appliance);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
+                TextField(
+                  onChanged: (query) => setState(() => _applianceSearch = query),
+                  decoration: InputDecoration(
+                    hintText: 'Search appliances...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
                 ),
+                const SizedBox(height: 10),
+                if (_selectedAppliances.isNotEmpty)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _selectedAppliances.map((a) {
+                      return Chip(
+                        label: Text(a),
+                        onDeleted: () => setState(() => _selectedAppliances.remove(a)),
+                        backgroundColor: const Color(0xFFE85D26).withValues(alpha: 0.1),
+                      );
+                    }).toList(),
+                  ),
+                if (_applianceSearch.isNotEmpty)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _applianceOptions
+                        .where((a) =>
+                            a.toLowerCase().contains(_applianceSearch.toLowerCase()) &&
+                            !_selectedAppliances.contains(a))
+                        .map((a) {
+                      return ActionChip(
+                        label: Text(a),
+                        onPressed: () => setState(() {
+                          _selectedAppliances.add(a);
+                          _applianceSearch = '';
+                        }),
+                      );
+                    }).toList(),
+                  ),
                 const SizedBox(height: 24),
                 const Text('Ingredients *', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),

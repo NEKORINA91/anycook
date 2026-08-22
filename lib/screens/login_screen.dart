@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:anycook/state/app_state.dart';
 import 'package:anycook/screens/discovery_screen.dart';
+import 'package:anycook/screens/signup_screen.dart';
+import 'package:anycook/screens/forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -123,10 +125,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                      );
+                    },
+                    child: Text('Forgot password?', style: TextStyle(color: Colors.grey.shade600)),
+                  ),
+                ),
                 const SizedBox(height: 28),
                 ElevatedButton(
-                  onPressed: () {
-                    context.read<AppState>().logIn();
+                    onPressed: () {
+                    context.read<AppState>().loginWithUsername(
+                          _usernameController.text,
+                          _passwordController.text,
+                        );
                     _goToDiscovery();
                   },
                   style: ElevatedButton.styleFrom(
@@ -135,6 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     elevation: 0,
                   ),
+                  
                   child: const Text(
                     'Sign In',
                     style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
@@ -145,8 +163,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text("Don't have an account?", style: TextStyle(color: Colors.grey.shade600)),
-                    TextButton(
-                      onPressed: () {},
+                      TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SignupScreen()),
+                        );
+                      },
                       child: const Text(
                         'Sign up',
                         style: TextStyle(color: Color(0xFFE85D26), fontWeight: FontWeight.bold),
