@@ -1,31 +1,86 @@
 enum MatchTier { green, yellow, red }
 
+enum MeasurementUnit { metric, imperial } // kg/g vs lb/oz, ml/l vs cups/tsp
+
+class Ingredient {
+  final String name;
+  final double amount;
+  final String unit; // 'g', 'kg', 'oz', 'lb', 'tsp', 'tbsp', 'ml', 'l', 'cup', 'pcs'
+
+  const Ingredient({
+    required this.name,
+    required this.amount,
+    required this.unit,
+  });
+
+  // Converts this ingredient's amount/unit to the user's preferred system.
+  // Placeholder rules for now — good enough for display, refine later
+  // with a proper conversion table once real recipes have varied units.
+  Ingredient convertedTo(MeasurementUnit target) {
+    const gToOz = 0.035274;
+    const ozToG = 28.3495;
+    const kgToLb = 2.20462;
+    const lbToKg = 0.453592;
+
+    if (target == MeasurementUnit.imperial) {
+      if (unit == 'g') return Ingredient(name: name, amount: amount * gToOz, unit: 'oz');
+      if (unit == 'kg') return Ingredient(name: name, amount: amount * kgToLb, unit: 'lb');
+    } else {
+      if (unit == 'oz') return Ingredient(name: name, amount: amount * ozToG, unit: 'g');
+      if (unit == 'lb') return Ingredient(name: name, amount: amount * lbToKg, unit: 'kg');
+    }
+    return this; // already in target system, or a unit we don't convert (pcs, tsp, etc.)
+  }
+
+  String get display => '${amount % 1 == 0 ? amount.toInt() : amount.toStringAsFixed(1)} $unit $name';
+}
+
+class RecipeStep {
+  final String title;
+  final String description;
+
+  const RecipeStep({required this.title, required this.description});
+}
+
 class Recipe {
   final String name;
   final List<String> requiredAppliances;
-  final List<String> requiredIngredients;
+  final List<String> requiredIngredients; // names only, used by existing matching logic
   final int timeMinutes;
+
+  // New fields for the detail page — all optional so old sample data still works.
+  final List<Ingredient> ingredientDetails;
+  final List<RecipeStep> steps;
+  final List<String> photoUrls;
+  final String? videoUrl;
+  final double rating; // 0–5, average of all ratings. 0 = unrated.
+  final int ratingCount;
+  final String creatorName;
 
   const Recipe({
     required this.name,
     required this.requiredAppliances,
     required this.requiredIngredients,
     required this.timeMinutes,
+    this.ingredientDetails = const [],
+    this.steps = const [],
+    this.photoUrls = const [],
+    this.videoUrl,
+    this.rating = 0,
+    this.ratingCount = 0,
+    this.creatorName = 'Unknown Chef',
   });
 
-  // Hard filter: user must have every appliance this recipe needs.
   bool hasRequiredAppliances(List<String> userAppliances) {
     return requiredAppliances.every((a) => userAppliances.contains(a));
   }
 
-  // Which ingredients is the user missing for this recipe?
   List<String> missingIngredients(List<String> userIngredients) {
     return requiredIngredients
         .where((i) => !userIngredients.contains(i))
         .toList();
   }
 
-  // Soft filter: how close is the user to having everything?
   MatchTier matchTier(List<String> userIngredients) {
     final missingCount = missingIngredients(userIngredients).length;
     if (missingCount == 0) return MatchTier.green;

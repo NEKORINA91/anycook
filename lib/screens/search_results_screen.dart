@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:anycook/data/sample_recipes.dart';
+import 'package:anycook/screens/recipe_detail_screen.dart';
 
 class SearchResultsScreen extends StatefulWidget {
   final String query;
@@ -54,14 +55,23 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       final recipe = results[index];
-                      return Card(
+                                            return Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         child: ListTile(
                           title: Text(recipe.name),
                           subtitle: Text('${recipe.timeMinutes} min'),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RecipeDetailScreen(recipe: recipe),
+                              ),
+                            );
+                          },
                         ),
                       );
                     },
+                    
                   ),
           ),
         ],
