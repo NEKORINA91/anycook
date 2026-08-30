@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:anycook/models/recipe.dart';
+import 'package:anycook/state/app_state.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final Recipe recipe;
-  final MeasurementUnit preferredUnit;
 
   const RecipeDetailScreen({
     super.key,
     required this.recipe,
-    this.preferredUnit = MeasurementUnit.metric,
   });
 
   @override
@@ -30,10 +30,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   Widget build(BuildContext context) {
     final recipe = widget.recipe;
     final hasPhotos = recipe.photoUrls.isNotEmpty;
+    final appState = context.watch<AppState>();
+    final preferredUnit = appState.measurementUnit;
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: CustomScrollView(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -93,7 +98,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
-                  Text('by ${recipe.creatorName}', style: TextStyle(color: Colors.grey.shade600)),
+                  // Creator name + chef rank badge
+                  Row(
+                    children: [
+                      Text('by ${recipe.creatorName}', style: TextStyle(color: Colors.grey.shade600)),
+                      const SizedBox(width: 8),
+                      _ChefRankBadge(creatorName: recipe.creatorName),
+                    ],
+                  ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -143,7 +155,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     )
                   else
                     ...recipe.ingredientDetails.map((i) {
-                      final converted = i.convertedTo(widget.preferredUnit);
+                      final converted = i.convertedTo(preferredUnit);
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
@@ -206,6 +218,43 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             ),
           ),
         ],
+      ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Small inline badge showing a chef rank next to a creator name.
+/// For now, maps known sample creator names to placeholder ranks.
+class _ChefRankBadge extends StatelessWidget {
+  final String creatorName;
+
+  const _ChefRankBadge({required this.creatorName});
+
+  @override
+  Widget build(BuildContext context) {
+    // For user-uploaded recipes, show the user's own rank.
+    // For sample/other recipes, show a placeholder rank based on creator name.
+    final appState = context.watch<AppState>();
+    final ChefRank rank;
+
+    if (creatorName == appState.username) {
+      rank = appState.chefRank;
+    } else {
+      // Placeholder rank for sample recipe creators
+      rank = ChefRank.sousChef;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFE4D1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        '${rank.emoji} ${rank.displayName}',
+        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
       ),
     );
   }

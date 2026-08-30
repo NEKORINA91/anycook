@@ -4,15 +4,14 @@ import 'package:anycook/screens/kitchen_setup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:anycook/widgets/hero_banner.dart';
 import 'package:anycook/widgets/recipe_card.dart';
-import 'package:anycook/data/sample_recipes.dart';
 import 'package:anycook/screens/pantry_screen.dart';
 import 'package:anycook/screens/login_screen.dart';
 import 'package:anycook/widgets/search_overlay.dart';
 import 'package:anycook/widgets/quick_link_card.dart';
 import 'package:anycook/screens/search_results_screen.dart';
-import 'package:anycook/screens/settings_screen.dart';
-import 'package:anycook/screens/profile_screen.dart';
 import 'package:anycook/screens/recipe_upload_screen.dart';
+import 'package:anycook/screens/profile_screen.dart';
+import 'package:anycook/screens/settings_screen.dart';
 
 
 class DiscoveryScreen extends StatefulWidget {
@@ -27,8 +26,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final quickRecipes = sampleRecipes.where((r) => r.timeMinutes <= 5).toList();
     final appState = context.watch<AppState>();
+    final allRecipes = appState.allRecipes;
+    final quickRecipes = allRecipes.where((r) => r.timeMinutes <= 5).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F3),
       drawer: Drawer(
@@ -46,14 +47,35 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                       child: const Icon(Icons.person, color: Color(0xFFE85D26)),
                     ),
                     const SizedBox(width: 12),
-                    Text(
-                      appState.isLoggedIn ? 'My Account' : 'Guest',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          appState.isLoggedIn ? appState.username : 'Guest',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        if (appState.isLoggedIn)
+                          Text(
+                            '${appState.chefRank.emoji} ${appState.chefRank.displayName}',
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          ),
+                      ],
                     ),
                   ],
                 ),
               ),
               const Divider(),
+              ListTile(
+                leading: const Icon(Icons.person_outline, color: Color(0xFFE85D26)),
+                title: const Text('Profile'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  );
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.kitchen, color: Color(0xFFE85D26)),
                 title: const Text('My Appliances'),
@@ -78,13 +100,22 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const PantryScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const PantryScreen()),
                   );
                 },
               ),
-                            ListTile(
+              ListTile(
+                leading: const Icon(Icons.upload_rounded, color: Color(0xFFE85D26)),
+                title: const Text('Upload Recipe'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RecipeUploadScreen()),
+                  );
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.settings, color: Color(0xFFE85D26)),
                 title: const Text('Settings'),
                 onTap: () {
@@ -95,34 +126,15 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   );
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.person, color: Color(0xFFE85D26)),
-                title: const Text('Profile'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.restaurant_menu, color: Color(0xFFE85D26)),
-                title: const Text('Upload Recipe'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RecipeUploadScreen()),
-                  );
-                },
-              ),
               const Divider(),
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.grey),
                 title: Text(appState.isLoggedIn ? 'Log Out' : 'Log In'),
                 onTap: () {
                   Navigator.pop(context);
+                  if (appState.isLoggedIn) {
+                    appState.logout();
+                  }
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -133,10 +145,23 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const RecipeUploadScreen()),
+          );
+        },
+        backgroundColor: const Color(0xFFE85D26),
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
       body: Stack(
         children: [
           SafeArea(
-            child: ListView(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             Row(
@@ -148,9 +173,17 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
                   ),
                 ),
                 const Spacer(),
-                CircleAvatar(
-                  backgroundColor: Colors.grey.shade200,
-                  child: const Icon(Icons.person, color: Color(0xFFE85D26)),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                    );
+                  },
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey.shade200,
+                    child: const Icon(Icons.person, color: Color(0xFFE85D26)),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -184,7 +217,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                                QuickLinkCard(
+                QuickLinkCard(
                   icon: Icons.star_rounded,
                   iconColor: const Color(0xFFE85D26),
                   title: 'Top Rated',
@@ -269,11 +302,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               height: 150,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: sampleRecipes.map((r) => RecipeCard(recipe: r)).toList(),
+                children: allRecipes.map((r) => RecipeCard(recipe: r)).toList(),
               ),
             ),
           ],
         ),
+              ),
+            ),
           ),
           if (_showSearch)
             SearchOverlay(onClose: () => setState(() => _showSearch = false)),
@@ -287,16 +322,6 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Message'),
         ],
-      ),
-            floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFFE85D26),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const RecipeUploadScreen()),
-          );
-        },
-        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

@@ -91,7 +91,7 @@ class SettingsScreen extends StatelessWidget {
                     color: Color(0xFF888888),
                   ),
                 ),
-                activeColor: const Color(0xFFE85D26),
+                activeThumbColor: const Color(0xFFE85D26),
                 value: appState.hideUnmakeableRecipes,
                 onChanged: (value) {
                   context.read<AppState>().setHideUnmakeableRecipes(value);

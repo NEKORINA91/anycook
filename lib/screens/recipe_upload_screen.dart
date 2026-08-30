@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:anycook/state/app_state.dart';
 import 'package:anycook/models/recipe.dart';
-import 'package:anycook/widgets/appliance_chip.dart';
 
 class RecipeUploadScreen extends StatefulWidget {
   const RecipeUploadScreen({super.key});
@@ -50,6 +49,8 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
     'Rice Cooker',
     'Blender'
   ];
+
+  final List<String> _selectedAppliances = [];
 
   final List<String> _unitOptions = [
     'g', 'kg', 'ml', 'l', 'cups', 'tsp', 'tbsp', 'oz', 'lb', 'pcs'
