@@ -39,65 +39,70 @@ class _KitchenSetupScreenState extends State<KitchenSetupScreen> {
         foregroundColor: const Color(0xFFE85D26),
         elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Tap what you have:',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: allAppliances.map((appliance) {
-                bool isSelected = selectedAppliances.contains(appliance);
-                return SelectableChip(
-                  label: appliance,
-                  isSelected: isSelected,
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        selectedAppliances.remove(appliance);
-                      } else {
-                        selectedAppliances.add(appliance);
-                      }
-                    });
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 30),
-            Text(
-              selectedAppliances.isEmpty
-                  ? 'No appliances selected yet'
-                  : 'Selected: ${selectedAppliances.join(', ')}',
-              style: const TextStyle(fontSize: 16, color: Color(0xFF888888)),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: selectedAppliances.isEmpty
-                  ? null
-                  : () {
-                      context.read<AppState>().setAppliances(selectedAppliances);
-                      Navigator.pop(context);
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE85D26),
-                disabledBackgroundColor: Colors.grey.shade300,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Tap what you have:',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
-              ),
-              child: const Text(
-                'Save',
-                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+                const SizedBox(height: 20),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: allAppliances.map((appliance) {
+                    bool isSelected = selectedAppliances.contains(appliance);
+                    return SelectableChip(
+                      label: appliance,
+                      isSelected: isSelected,
+                      onTap: () {
+                        setState(() {
+                          if (isSelected) {
+                            selectedAppliances.remove(appliance);
+                          } else {
+                            selectedAppliances.add(appliance);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 30),
+                Text(
+                  selectedAppliances.isEmpty
+                      ? 'No appliances selected yet'
+                      : 'Selected: ${selectedAppliances.join(', ')}',
+                  style: const TextStyle(fontSize: 16, color: Color(0xFF888888)),
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: selectedAppliances.isEmpty
+                      ? null
+                      : () {
+                          context.read<AppState>().setAppliances(selectedAppliances);
+                          Navigator.pop(context);
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFE85D26),
+                    disabledBackgroundColor: Colors.grey.shade300,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
