@@ -4,8 +4,15 @@ import 'package:anycook/screens/recipe_detail_screen.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
+  final double? width;
+  final EdgeInsetsGeometry? margin;
 
-  const RecipeCard({super.key, required this.recipe});
+  const RecipeCard({
+    super.key, 
+    required this.recipe,
+    this.width = 140,
+    this.margin = const EdgeInsets.only(right: 12),
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +26,8 @@ class RecipeCard extends StatelessWidget {
         );
       },
       child: Container(
-        width: 140,
-        margin: const EdgeInsets.only(right: 12),
+        width: width,
+        margin: margin,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,

@@ -158,156 +158,203 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       body: Stack(
         children: [
           SafeArea(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 480),
-                child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Row(
-              children: [
-                Builder(
-                  builder: (context) => IconButton(
-                    icon: const Icon(Icons.menu),
-                    onPressed: () => Scaffold.of(context).openDrawer(),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 600;
+                return ListView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isWide ? 40 : 16,
+                    vertical: 16,
                   ),
-                ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                    );
-                  },
-                  child: CircleAvatar(
-                    backgroundColor: Colors.grey.shade200,
-                    child: const Icon(Icons.person, color: Color(0xFFE85D26)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const Text(
-                  'AnyCook',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () => setState(() => _showSearch = true),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Row(
                   children: [
-                    Icon(Icons.search, color: Colors.grey.shade400),
-                    const SizedBox(width: 8),
-                    Text('Search recipes...', style: TextStyle(color: Colors.grey.shade400)),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const HeroBanner(),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                QuickLinkCard(
-                  icon: Icons.star_rounded,
-                  iconColor: const Color(0xFFE85D26),
-                  title: 'Top Rated',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const SearchResultsScreen(filter: 'topRated'),
-                      ),
-                    );
-                  },
-                ),
-                QuickLinkCard(
-                  icon: Icons.history_rounded,
-                  iconColor: Colors.blueGrey,
-                  title: 'Recent',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const SearchResultsScreen(filter: 'recent'),
-                      ),
-                    );
-                  },
-                ),
-                QuickLinkCard(
-                  icon: Icons.timer_rounded,
-                  iconColor: Colors.green,
-                  title: 'Under 5 Min',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const SearchResultsScreen(filter: 'under5min'),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            if (appState.isLoggedIn && appState.appliances.isEmpty) ...[
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF0E6),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Text('Add your appliances for better matches'),
+                    Row(
+                      children: [
+                        Builder(
+                          builder: (context) => IconButton(
+                            icon: const Icon(Icons.menu),
+                            onPressed: () => Scaffold.of(context).openDrawer(),
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                            );
+                          },
+                          child: CircleAvatar(
+                            backgroundColor: Colors.grey.shade200,
+                            child: const Icon(Icons.person, color: Color(0xFFE85D26)),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'AnyCook',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const KitchenSetupScreen()),
-                        );
-                      },
-                      child: const Text('Set up'),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: () => setState(() => _showSearch = true),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.search, color: Colors.grey.shade400),
+                            const SizedBox(width: 8),
+                            Text('Search recipes...', style: TextStyle(color: Colors.grey.shade400)),
+                          ],
+                        ),
+                      ),
                     ),
+                    const SizedBox(height: 20),
+                    const HeroBanner(),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: QuickLinkCard(
+                            icon: Icons.star_rounded,
+                            iconColor: const Color(0xFFE85D26),
+                            title: 'Top Rated',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const SearchResultsScreen(filter: 'topRated'),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        if (isWide) const SizedBox(width: 16),
+                        Expanded(
+                          child: QuickLinkCard(
+                            icon: Icons.history_rounded,
+                            iconColor: Colors.blueGrey,
+                            title: 'Recent',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const SearchResultsScreen(filter: 'recent'),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        if (isWide) const SizedBox(width: 16),
+                        Expanded(
+                          child: QuickLinkCard(
+                            icon: Icons.timer_rounded,
+                            iconColor: Colors.green,
+                            title: 'Under 5 Min',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const SearchResultsScreen(filter: 'under5min'),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (appState.isLoggedIn && appState.appliances.isEmpty) ...[
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF0E6),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            const Expanded(
+                              child: Text('Add your appliances for better matches'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const KitchenSetupScreen()),
+                                );
+                              },
+                              child: const Text('Set up'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    const Text('Under 5 Min', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+                    if (isWide)
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 220,
+                          mainAxisExtent: 160,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                        itemCount: quickRecipes.length,
+                        itemBuilder: (context, index) => RecipeCard(
+                          recipe: quickRecipes[index],
+                          width: null,
+                          margin: EdgeInsets.zero,
+                        ),
+                      )
+                    else
+                      SizedBox(
+                        height: 150,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: quickRecipes.map((r) => RecipeCard(recipe: r)).toList(),
+                        ),
+                      ),
+                    const SizedBox(height: 24),
+                    const Text('All Recipes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 12),
+                    if (isWide)
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 220,
+                          mainAxisExtent: 160,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                        itemCount: allRecipes.length,
+                        itemBuilder: (context, index) => RecipeCard(
+                          recipe: allRecipes[index],
+                          width: null,
+                          margin: EdgeInsets.zero,
+                        ),
+                      )
+                    else
+                      SizedBox(
+                        height: 150,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: allRecipes.map((r) => RecipeCard(recipe: r)).toList(),
+                        ),
+                      ),
                   ],
-                ),
-              ),
-            ],
-            const SizedBox(height: 24),
-            const Text('Under 5 Min', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 150,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: quickRecipes.map((r) => RecipeCard(recipe: r)).toList(),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text('All Recipes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 150,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: allRecipes.map((r) => RecipeCard(recipe: r)).toList(),
-              ),
-            ),
-          ],
-        ),
-              ),
+                );
+              },
             ),
           ),
           if (_showSearch)
