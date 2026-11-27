@@ -322,18 +322,15 @@ class _PantryMatchCard extends StatelessWidget {
         : '$readyCount ${readyCount == 1 ? 'recipe' : 'recipes'} you can make right now';
     final fraction = total == 0 ? 0.0 : (readyCount / total).clamp(0.0, 1.0).toDouble();
 
-    return Pressable(
+    return GlowCard(
       onTap: () => goToTab(context, NavTab.kitchen),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: AppColors.lilac,
-          borderRadius: BorderRadius.circular(compact ? 22 : 20),
-          boxShadow: compact
-              ? null
-              : [BoxShadow(color: AppColors.lilacInk.withValues(alpha: 0.12), blurRadius: 50, offset: const Offset(0, 20))],
-        ),
-        child: Row(
+      semanticLabel: 'Pantry match. Open My kitchen',
+      color: AppColors.lilac,
+      borderColor: null,
+      glow: const Color(0xFF6D55D1),
+      radius: compact ? 22 : 20,
+      padding: const EdgeInsets.all(18),
+      child: Row(
           children: [
             Expanded(
               child: Column(
@@ -368,7 +365,6 @@ class _PantryMatchCard extends StatelessWidget {
             ],
           ],
         ),
-      ),
     );
   }
 }
@@ -391,13 +387,6 @@ class _HeroCards extends StatelessWidget {
     required this.pantry,
   });
 
-  BoxDecoration _float() => BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.line),
-        boxShadow: [BoxShadow(color: AppColors.ink.withValues(alpha: 0.08), blurRadius: 50, offset: const Offset(0, 20))],
-      );
-
   @override
   Widget build(BuildContext context) {
     final f = featured;
@@ -413,9 +402,11 @@ class _HeroCards extends StatelessWidget {
             left: 0,
             top: 30,
             width: 250,
-            child: Container(
+            child: GlowCard(
+              radius: 20,
               padding: const EdgeInsets.all(18),
-              decoration: _float(),
+              semanticLabel: 'Your kitchen. Open My kitchen',
+              onTap: () => goToTab(context, NavTab.kitchen),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -426,17 +417,14 @@ class _HeroCards extends StatelessWidget {
                     runSpacing: 6,
                     children: [
                       for (final a in shown) Tag(label: a, bg: AppColors.accentSoft, ink: AppColors.accentInk),
-                      GestureDetector(
-                        onTap: () => goToTab(context, NavTab.kitchen),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(color: const Color(0xFFD6CEC5)),
-                          ),
-                          child: Text(shown.isEmpty ? '+ Add appliances' : '+ Add',
-                              style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: const Color(0xFFD6CEC5)),
                         ),
+                        child: Text(shown.isEmpty ? '+ Add appliances' : '+ Add',
+                            style: const TextStyle(fontSize: 12, color: AppColors.muted)),
                       ),
                     ],
                   ),
@@ -457,12 +445,11 @@ class _HeroCards extends StatelessWidget {
               left: 70,
               top: 160,
               width: 320,
-              child: Pressable(
+              child: GlowCard(
+                semanticLabel: 'Open ${f.name}',
+                padding: const EdgeInsets.all(14),
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: f))),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: _float().copyWith(borderRadius: BorderRadius.circular(24)),
-                  child: Column(
+                child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       FoodArt(seed: f.name, height: 150, iconSize: 60),
@@ -483,7 +470,6 @@ class _HeroCards extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
               ),
             ),
           // Dark pill

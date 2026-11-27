@@ -1,7 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// AnyCook "soft glow" palette — matches the AnyCook redesign canvas.
 class AppColors {
@@ -56,7 +55,8 @@ class AppTheme {
     Color color = AppColors.ink,
     double? height,
   }) =>
-      GoogleFonts.interTight(
+      TextStyle(
+        fontFamily: 'InterTight',
         fontSize: size,
         fontWeight: weight,
         color: color,
@@ -65,7 +65,8 @@ class AppTheme {
       );
 
   /// Small uppercase label ("PICKED FOR YOUR KITCHEN").
-  static TextStyle eyebrow({Color color = AppColors.muted}) => GoogleFonts.inter(
+  static TextStyle eyebrow({Color color = AppColors.muted}) => TextStyle(
+        fontFamily: 'Inter',
         fontSize: 12,
         fontWeight: FontWeight.w600,
         letterSpacing: 1,
@@ -75,6 +76,7 @@ class AppTheme {
   static ThemeData light() {
     final base = ThemeData(
       useMaterial3: true,
+      fontFamily: 'Inter',
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.accent,
         primary: AppColors.accent,
@@ -84,7 +86,8 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.bg,
     );
 
-    final body = GoogleFonts.interTextTheme(base.textTheme).apply(
+    final body = base.textTheme.apply(
+      fontFamily: 'Inter',
       bodyColor: AppColors.ink,
       displayColor: AppColors.ink,
     );
@@ -130,7 +133,7 @@ class AppTheme {
           minimumSize: const Size(0, 48),
           padding: const EdgeInsets.symmetric(horizontal: 22),
           shape: const StadiumBorder(),
-          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -150,13 +153,13 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 22),
           side: const BorderSide(color: AppColors.lineStrong),
           shape: const StadiumBorder(),
-          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w500),
+          textStyle: const TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w500),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.accent,
-          textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
       switchTheme: SwitchThemeData(
@@ -177,7 +180,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        hintStyle: GoogleFonts.inter(color: AppColors.muted, fontSize: 15),
+        hintStyle: const TextStyle(fontFamily: 'Inter', color: AppColors.muted, fontSize: 15),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),

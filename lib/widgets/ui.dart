@@ -395,7 +395,7 @@ class Avatar extends StatelessWidget {
   const Avatar({super.key, required this.name, this.size = 40, this.dark = false});
 
   String get _initials {
-        final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
     if (parts.isEmpty) return '?';
     if (parts.length == 1) {
       final p = parts.first;
@@ -706,4 +706,160 @@ class PageTitle extends StatelessWidget {
 
 void showSoon(BuildContext context, String what) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$what is coming soon')));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GlowCard: soft glow at rest, brighter glow on hover, and an orange bar that
+// fills along the bottom when tapped, before moving to the next page.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class GlowCard extends StatefulWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final double radius;
+  final Color color;
+  final Color? borderColor;
+  final Color glow;
+  final EdgeInsetsGeometry padding;
+  final String? semanticLabel;
+
+  const GlowCard({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.radius = 24,
+    this.color = AppColors.surface,
+    this.borderColor = AppColors.line,
+    this.glow = AppColors.accentBright,
+    this.padding = EdgeInsets.zero,
+    this.semanticLabel,
+  });
+
+  @override
+  State<GlowCard> createState() => _GlowCardState();
+}
+
+class _GlowCardState extends State<GlowCard> with SingleTickerProviderStateMixin {
+  late final AnimationController _bar = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
+  );
+  bool _hovered = false;
+  bool _pressed = false;
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _bar.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleTap() async {
+    final onTap = widget.onTap;
+    if (onTap == null || _busy) return;
+    if (reduceMotion(context)) {
+      onTap();
+      return;
+    }
+    _busy = true;
+    await _bar.forward(from: 0);
+    if (!mounted) return;
+    onTap();
+    // Quietly reset once the next page has slid in over us.
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+    _bar.value = 0;
+    _busy = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tappable = widget.onTap != null;
+    final lit = _hovered && tappable;
+    final scale = _pressed ? 0.98 : (lit ? 1.015 : 1.0);
+    final r = BorderRadius.circular(widget.radius);
+
+    return Semantics(
+      button: tappable,
+      label: widget.semanticLabel,
+      child: MouseRegion(
+        cursor: tappable ? SystemMouseCursors.click : MouseCursor.defer,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: tappable ? (_) => setState(() => _pressed = true) : null,
+          onTapCancel: tappable ? () => setState(() => _pressed = false) : null,
+          onTapUp: tappable ? (_) => setState(() => _pressed = false) : null,
+          onTap: tappable ? _handleTap : null,
+          child: AnimatedScale(
+            scale: scale,
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 240),
+              curve: Curves.easeOut,
+              decoration: BoxDecoration(
+                color: widget.color,
+                borderRadius: r,
+                border: widget.borderColor == null
+                    ? null
+                    : Border.all(
+                        color: lit ? widget.glow.withValues(alpha: 0.45) : widget.borderColor!,
+                      ),
+                boxShadow: [
+                  // The coloured glow around the card.
+                  BoxShadow(
+                    color: widget.glow.withValues(alpha: lit ? 0.26 : 0.10),
+                    blurRadius: lit ? 40 : 28,
+                    spreadRadius: lit ? 2 : 0,
+                    offset: Offset(0, lit ? 14 : 10),
+                  ),
+                  // A soft neutral shadow so it still reads as "floating".
+                  BoxShadow(
+                    color: AppColors.ink.withValues(alpha: 0.05),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: r,
+                child: Stack(
+                  children: [
+                    Padding(padding: widget.padding, child: widget.child),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: 4,
+                      child: AnimatedBuilder(
+                        animation: _bar,
+                        builder: (context, _) => _bar.value == 0
+                            ? const SizedBox.shrink()
+                            : Align(
+                                alignment: Alignment.centerLeft,
+                                child: FractionallySizedBox(
+                                  widthFactor: Curves.easeOutCubic.transform(_bar.value),
+                                  heightFactor: 1,
+                                  child: const DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [AppColors.accentBright, AppColors.accent],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
