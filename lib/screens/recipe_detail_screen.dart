@@ -2,259 +2,398 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:anycook/models/recipe.dart';
 import 'package:anycook/state/app_state.dart';
+import 'package:anycook/theme/app_theme.dart';
+import 'package:anycook/widgets/ui.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final Recipe recipe;
 
-  const RecipeDetailScreen({
-    super.key,
-    required this.recipe,
-  });
+  const RecipeDetailScreen({super.key, required this.recipe});
 
   @override
   State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
-  final PageController _photoController = PageController();
   int _currentPhoto = 0;
   bool _liked = false;
-
-  @override
-  void dispose() {
-    _photoController.dispose();
-    super.dispose();
-  }
+  final _methodKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     final recipe = widget.recipe;
-    final hasPhotos = recipe.photoUrls.isNotEmpty;
-    final appState = context.watch<AppState>();
-    final preferredUnit = appState.measurementUnit;
+    final s = context.watch<AppState>();
+    final wide = isWide(context);
+    final pantry = s.pantryIngredients;
+    final missing = missingFor(recipe, pantry);
+    final missingAppliances = s.appliances.isEmpty
+        ? <String>[]
+        : recipe.requiredAppliances.where((a) => !s.appliances.contains(a)).toList();
+    final rank = recipe.creatorName == s.username ? s.chefRank : ChefRank.sousChef; // placeholder for sample chefs
+    final photoCount = recipe.photoUrls.isEmpty ? 1 : recipe.photoUrls.length;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            expandedHeight: hasPhotos ? 260 : 0,
-            backgroundColor: const Color(0xFFE85D26),
-            foregroundColor: Colors.white,
-            flexibleSpace: hasPhotos
-                ? FlexibleSpaceBar(
-                    background: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        PageView.builder(
-                          controller: _photoController,
-                          onPageChanged: (i) => setState(() => _currentPhoto = i),
-                          itemCount: recipe.photoUrls.length,
-                          itemBuilder: (context, index) => Container(
-                            color: const Color(0xFFFFE4D1),
-                            child: const Center(
-                              child: Text('📷', style: TextStyle(fontSize: 50)),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 12,
-                          left: 0,
-                          right: 0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(recipe.photoUrls.length, (index) {
-                              return Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 3),
-                                width: 7,
-                                height: 7,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: _currentPhoto == index
-                                      ? Colors.white
-                                      : Colors.white.withValues(alpha: 0.4),
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                      ],
+    // ── Left: photo + thumbnails ───────────────────────────────────────────
+    final gallery = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FoodArt(
+          seed: '${recipe.name}$_currentPhoto',
+          height: wide ? 440 : 260,
+          radius: 28,
+          iconSize: wide ? 120 : 80,
+        ),
+        if (photoCount > 1) ...[
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              for (var i = 0; i < photoCount; i++)
+                Semantics(
+                  button: true,
+                  label: 'Photo ${i + 1}',
+                  selected: i == _currentPhoto,
+                  child: GestureDetector(
+                    onTap: () => setState(() => _currentPhoto = i),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: i == _currentPhoto ? AppColors.ink : Colors.transparent, width: 2),
+                      ),
+                      child: SizedBox(
+                        width: 80,
+                        height: 60,
+                        child: FoodArt(seed: '${recipe.name}$i', height: 60, radius: 12, iconSize: 22),
+                      ),
                     ),
-                  )
-                : null,
+                  ),
+                ),
+            ],
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
+        ],
+      ],
+    );
+
+    // ── Right: title, chef, stats, actions ─────────────────────────────────
+    final info = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (missingAppliances.isNotEmpty)
+              Tag(label: 'Needs ${missingAppliances.join(', ').toLowerCase()}', bg: AppColors.redBg, ink: AppColors.redInk)
+            else if (recipe.requiredAppliances.isNotEmpty)
+              Tag(label: 'Works in your kitchen', bg: AppColors.greenBg, ink: AppColors.greenInk),
+            if (pantry.isNotEmpty) TierBadge(recipe: recipe, pantry: pantry),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Text(recipe.name, style: AppTheme.display(size: wide ? 60 : 38, weight: FontWeight.w300, height: 1.02)),
+        const SizedBox(height: 18),
+        Row(
+          children: [
+            Avatar(name: recipe.creatorName, size: 40),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(recipe.creatorName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                Text(rank.displayName, style: const TextStyle(fontSize: 13, color: AppColors.muted)),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(child: _StatTile(label: 'Time', value: '${recipe.timeMinutes} min')),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _StatTile(
+                label: 'Rating',
+                value: recipe.ratingCount == 0 ? 'New' : '${recipe.rating.toStringAsFixed(1)} ★',
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _StatTile(
+                label: 'Appliance',
+                value: recipe.requiredAppliances.isEmpty ? 'None' : recipe.requiredAppliances.first,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            FilledButton(
+              onPressed: () {
+                final ctx = _methodKey.currentContext;
+                if (ctx != null) {
+                  Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 500), curve: Curves.easeInOutCubic);
+                }
+              },
+              child: const Text('Start cooking'),
+            ),
+            _RoundIconButton(
+              tooltip: _liked ? 'Unlike' : 'Like',
+              icon: _liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              color: _liked ? AppColors.redInk : AppColors.ink,
+              onTap: () => setState(() => _liked = !_liked),
+            ),
+            _RoundIconButton(
+              tooltip: 'Share',
+              icon: Icons.ios_share_rounded,
+              onTap: () => showSoon(context, 'Sharing'),
+            ),
+          ],
+        ),
+      ],
+    );
+
+    // ── Ingredients card ────────────────────────────────────────────────────
+    final haveSet = pantry.map((p) => p.toLowerCase().trim()).toSet();
+    final List<({String name, String amount})> rows = recipe.ingredientDetails.isNotEmpty
+        ? [
+            for (final i in recipe.ingredientDetails)
+              () {
+                final c = i.convertedTo(s.measurementUnit);
+                final amt = c.amount % 1 == 0 ? c.amount.toInt().toString() : c.amount.toStringAsFixed(1);
+                return (name: i.name, amount: '$amt ${c.unit}');
+              }(),
+          ]
+        : [for (final n in recipe.requiredIngredients) (name: n, amount: '')];
+
+    final ingredients = SectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              Text('Ingredients', style: AppTheme.display(size: 26)),
+              SegmentedPill(
+                options: const ['Metric', 'Imperial'],
+                selected: s.measurementUnit == MeasurementUnit.metric ? 0 : 1,
+                onChanged: (i) => s.setMeasurementUnit(i == 0 ? MeasurementUnit.metric : MeasurementUnit.imperial),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          for (final r in rows)
+            _IngredientRow(
+              name: _capitalise(r.name),
+              amount: r.amount,
+              have: pantry.isEmpty ? null : haveSet.contains(r.name.toLowerCase().trim()),
+            ),
+          if (pantry.isNotEmpty && missing.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            OutlinedButton(
+              onPressed: () => showSoon(context, 'The shopping list'),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: AppColors.accentSoft,
+                foregroundColor: AppColors.accentInk,
+                minimumSize: const Size.fromHeight(46),
+              ),
+              child: Text('Add ${missing.length} missing to shopping list'),
+            ),
+          ],
+          if (pantry.isEmpty) ...[
+            const SizedBox(height: 14),
+            TextButton(
+              onPressed: () => goToTab(context, NavTab.kitchen),
+              child: const Text('Add your pantry to see what you have'),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    // ── Method + comments ───────────────────────────────────────────────────
+    final method = Column(
+      key: _methodKey,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Method', style: AppTheme.display(size: 26)),
+        const SizedBox(height: 8),
+        if (recipe.steps.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Text('No steps added yet.', style: TextStyle(color: AppColors.muted)),
+          )
+        else
+          for (var i = 0; i < recipe.steps.length; i++)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              decoration: const BoxDecoration(border: Border(top: BorderSide(color: AppColors.line))),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    recipe.name,
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 6),
-                  // Creator name + chef rank badge
-                  Row(
-                    children: [
-                      Text('by ${recipe.creatorName}', style: TextStyle(color: Colors.grey.shade600)),
-                      const SizedBox(width: 8),
-                      _ChefRankBadge(creatorName: recipe.creatorName),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Icon(Icons.timer_outlined, size: 18, color: Colors.grey.shade600),
-                      const SizedBox(width: 4),
-                      Text('${recipe.timeMinutes} min', style: TextStyle(color: Colors.grey.shade600)),
-                      const SizedBox(width: 16),
-                      const Icon(Icons.star_rounded, size: 18, color: Color(0xFFE85D26)),
-                      const SizedBox(width: 4),
-                      Text(
-                        recipe.ratingCount == 0
-                            ? 'No ratings yet'
-                            : '${recipe.rating.toStringAsFixed(1)} (${recipe.ratingCount})',
-                        style: TextStyle(color: Colors.grey.shade600),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: Icon(
-                          _liked ? Icons.favorite : Icons.favorite_border,
-                          color: _liked ? Colors.red : Colors.grey.shade400,
-                        ),
-                        onPressed: () => setState(() => _liked = !_liked),
-                      ),
-                    ],
-                  ),
-                  if (recipe.videoUrl != null) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      height: 180,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.black87,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Center(
-                        child: Icon(Icons.play_circle_fill, color: Colors.white, size: 50),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-                  const Text('Ingredients', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  if (recipe.ingredientDetails.isEmpty)
-                    Text(
-                      recipe.requiredIngredients.join(', '),
-                      style: TextStyle(color: Colors.grey.shade700, height: 1.6),
-                    )
-                  else
-                    ...recipe.ingredientDetails.map((i) {
-                      final converted = i.convertedTo(preferredUnit);
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.circle, size: 6, color: Color(0xFFE85D26)),
-                            const SizedBox(width: 10),
-                            Text(converted.display, style: const TextStyle(fontSize: 14)),
-                          ],
-                        ),
-                      );
-                    }),
-                  const SizedBox(height: 24),
-                  const Text('Steps', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  if (recipe.steps.isEmpty)
-                    Text('No steps added yet.', style: TextStyle(color: Colors.grey.shade500))
-                  else
-                    ...recipe.steps.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final step = entry.value;
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Step ${index + 1}: ${step.title}',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(step.description, style: TextStyle(color: Colors.grey.shade700, height: 1.4)),
-                          ],
-                        ),
-                      );
-                    }),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 12),
-                  const Text('Comments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  // Backend needed: real comments require stored user accounts
-                  // and a comments table. Placeholder shown for now.
-                  Text('Be the first to comment.', style: TextStyle(color: Colors.grey.shade500)),
-                  const SizedBox(height: 12),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Add a comment...',
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
-                      ),
+                  SizedBox(
+                    width: 52,
+                    child: Text(
+                      (i + 1).toString().padLeft(2, '0'),
+                      style: AppTheme.display(size: 36, weight: FontWeight.w300, color: AppColors.accent, height: 1),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(recipe.steps[i].title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+                        if (recipe.steps[i].description.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Text(recipe.steps[i].description,
+                              style: const TextStyle(fontSize: 15, height: 1.6, color: AppColors.muted)),
+                        ],
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
+        const SizedBox(height: 20),
+        SectionCard(
+          color: AppColors.stone,
+          borderColor: null,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('Comments', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 6),
+              Text('No comments yet. Cooked it? Tell ${recipe.creatorName} how it went.',
+                  style: const TextStyle(fontSize: 14, color: AppColors.muted)),
+              const SizedBox(height: 12),
+              // Backend needed: real comments need accounts + a comments table.
+              const TextField(
+                minLines: 3,
+                maxLines: 6,
+                decoration: InputDecoration(hintText: 'Mine came out fluffy, I swapped butter for oil'),
+              ),
+            ],
           ),
-        ],
-      ),
         ),
+      ],
+    );
+
+    return AppShell(
+      current: NavTab.none,
+      body: PageWidth(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: staggerIn(context, [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => Navigator.maybePop(context),
+                icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                label: const Text('Back'),
+                style: TextButton.styleFrom(foregroundColor: AppColors.muted),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Split(first: gallery, second: info, firstFlex: 11, secondFlex: 9, gap: 40),
+            SizedBox(height: wide ? 48 : 32),
+            Split(first: ingredients, second: method, firstFlex: 2, secondFlex: 3, gap: 40),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  static String _capitalise(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+}
+
+class _StatTile extends StatelessWidget {
+  final String label;
+  final String value;
+  const _StatTile({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+          const SizedBox(height: 4),
+          Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTheme.display(size: 20)),
+        ],
       ),
     );
   }
 }
 
-/// Small inline badge showing a chef rank next to a creator name.
-/// For now, maps known sample creator names to placeholder ranks.
-class _ChefRankBadge extends StatelessWidget {
-  final String creatorName;
+class _IngredientRow extends StatelessWidget {
+  final String name;
+  final String amount;
+  final bool? have; // null = pantry not set up
 
-  const _ChefRankBadge({required this.creatorName});
+  const _IngredientRow({required this.name, required this.amount, required this.have});
 
   @override
   Widget build(BuildContext context) {
-    // For user-uploaded recipes, show the user's own rank.
-    // For sample/other recipes, show a placeholder rank based on creator name.
-    final appState = context.watch<AppState>();
-    final ChefRank rank;
-
-    if (creatorName == appState.username) {
-      rank = appState.chefRank;
-    } else {
-      // Placeholder rank for sample recipe creators
-      rank = ChefRank.sousChef;
-    }
-
+    final h = have;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFE4D1),
-        borderRadius: BorderRadius.circular(12),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xFFF1ECE6)))),
+      child: Row(
+        children: [
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              color: h == null ? AppColors.stone : (h ? AppColors.greenInk : const Color(0xFFB45309)),
+              shape: BoxShape.circle,
+            ),
+            child: h == null
+                ? null
+                : Icon(h ? Icons.check_rounded : Icons.add_rounded, size: 14, color: Colors.white,
+                    semanticLabel: h ? 'You have this' : 'Missing'),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Text(name, style: const TextStyle(fontSize: 15))),
+          Text(amount, style: const TextStyle(fontSize: 14, color: AppColors.muted)),
+        ],
       ),
-      child: Text(
-        '${rank.emoji} ${rank.displayName}',
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+    );
+  }
+}
+
+class _RoundIconButton extends StatelessWidget {
+  final String tooltip;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _RoundIconButton({required this.tooltip, required this.icon, required this.onTap, this.color = AppColors.ink});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onTap,
+      icon: Icon(icon, color: color, size: 20),
+      style: IconButton.styleFrom(
+        fixedSize: const Size(48, 48),
+        backgroundColor: AppColors.surface,
+        side: const BorderSide(color: AppColors.lineStrong),
       ),
     );
   }

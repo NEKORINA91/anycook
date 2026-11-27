@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:anycook/state/app_state.dart';
 import 'package:anycook/screens/search_results_screen.dart';
+import 'package:anycook/theme/app_theme.dart';
 
+/// Full-screen search with recent searches and live suggestions.
 class SearchOverlay extends StatefulWidget {
   final VoidCallback onClose;
 
@@ -25,150 +27,111 @@ class _SearchOverlayState extends State<SearchOverlay> {
   void _updateSuggestions(String query) {
     final appState = context.read<AppState>();
     setState(() {
-      if (query.isEmpty) {
-        _suggestions = [];
-      } else {
-        _suggestions = appState.allRecipes
-            .map((r) => r.name)
-            .where((name) => name.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      }
+      _suggestions = query.isEmpty
+          ? []
+          : appState.allRecipes
+              .map((r) => r.name)
+              .where((name) => name.toLowerCase().contains(query.toLowerCase()))
+              .toList();
     });
   }
 
   void _runSearch(String query) {
-    if (query.isEmpty) return;
+    if (query.trim().isEmpty) return;
     context.read<AppState>().addSearchTerm(query);
     widget.onClose();
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => SearchResultsScreen(searchQuery: query),
-      ),
+      MaterialPageRoute(builder: (_) => SearchResultsScreen(searchQuery: query)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
-    final showHistory =
-        _controller.text.isEmpty && appState.searchHistory.isNotEmpty;
+    final showHistory = _controller.text.isEmpty && appState.searchHistory.isNotEmpty;
+
+    Widget row(IconData icon, String text) => ListTile(
+          leading: Icon(icon, color: AppColors.muted, size: 20),
+          title: Text(text),
+          dense: true,
+          onTap: () => _runSearch(text),
+        );
 
     return GestureDetector(
       onTap: widget.onClose,
       child: Container(
-        color: Colors.black.withValues(alpha: 0.6),
+        color: AppColors.ink.withValues(alpha: 0.55),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            // Swallow taps on the search box itself so tapping inside
-            // it doesn't trigger the "tap outside to close" above.
-            child: GestureDetector(
-              onTap: () {},
-              child: Column(
-                children: [
-                  // ── Search input bar ──────────────────────────────────
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Row(
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: GestureDetector(
+                  onTap: () {}, // taps inside the panel don't close it
+                  child: Material(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(24),
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Icon(Icons.search, color: Colors.grey),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: _controller,
-                            autofocus: true,
-                            onChanged: _updateSuggestions,
-                            onSubmitted: _runSearch,
-                            decoration: const InputDecoration(
-                              hintText: 'Search recipes...',
-                              border: InputBorder.none,
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(18, 6, 6, 6),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.search_rounded, color: AppColors.muted),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: TextField(
+                                  controller: _controller,
+                                  autofocus: true,
+                                  onChanged: _updateSuggestions,
+                                  onSubmitted: _runSearch,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Search recipes or ingredients',
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    filled: false,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: 'Close search',
+                                icon: const Icon(Icons.close_rounded, color: AppColors.muted),
+                                onPressed: widget.onClose,
+                              ),
+                            ],
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.grey),
-                          onPressed: widget.onClose,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // ── Search history (when query is empty) ──────────────
-                  if (showHistory)
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
+                        if (showHistory) ...[
+                          const Divider(),
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.fromLTRB(18, 12, 8, 4),
                             child: Row(
                               children: [
-                                Text(
-                                  'Recent Searches',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
+                                Text('RECENT SEARCHES', style: AppTheme.eyebrow()),
                                 const Spacer(),
-                                GestureDetector(
-                                  onTap: () =>
-                                      appState.clearSearchHistory(),
-                                  child: Text(
-                                    'Clear',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey.shade500,
-                                    ),
-                                  ),
-                                ),
+                                TextButton(onPressed: appState.clearSearchHistory, child: const Text('Clear')),
                               ],
                             ),
                           ),
-                          ...appState.searchHistory.map((term) {
-                            return ListTile(
-                              leading: Icon(Icons.access_time,
-                                  color: Colors.grey.shade400, size: 20),
-                              title: Text(term),
-                              dense: true,
-                              onTap: () => _runSearch(term),
-                            );
-                          }),
+                          ...appState.searchHistory.map((t) => row(Icons.history_rounded, t)),
+                          const SizedBox(height: 8),
                         ],
-                      ),
+                        if (_suggestions.isNotEmpty) ...[
+                          const Divider(),
+                          ..._suggestions.map((t) => row(Icons.search_rounded, t)),
+                          const SizedBox(height: 8),
+                        ],
+                      ],
                     ),
-
-                  // ── Live suggestions (when typing) ────────────────────
-                  if (_suggestions.isNotEmpty)
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: _suggestions.map((s) {
-                          return ListTile(
-                            leading: const Icon(Icons.search,
-                                color: Colors.grey, size: 20),
-                            title: Text(s),
-                            dense: true,
-                            onTap: () => _runSearch(s),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                ],
+                  ),
+                ),
               ),
             ),
           ),

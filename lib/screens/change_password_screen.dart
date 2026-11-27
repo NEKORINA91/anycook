@@ -76,7 +76,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Password changed successfully'),
-          backgroundColor: Color(0xFF4CAF50),
+          backgroundColor: Color(0xFF6F8A5B),
         ),
       );
       if (mounted) {
@@ -103,7 +103,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         onPressed: onToggleVisibility,
       ),
       filled: true,
-      fillColor: const Color(0xFFFFF8F3),
+      fillColor: const Color(0xFFF7F1E8),
       contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -115,7 +115,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFFE85D26), width: 1.5),
+        borderSide: const BorderSide(color: Color(0xFFC2502A), width: 1.5),
       ),
     );
   }
@@ -123,11 +123,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F3),
+      backgroundColor: const Color(0xFFF7F1E8),
       appBar: AppBar(
         title: const Text('Change Password'),
         backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFFE85D26),
+        foregroundColor: const Color(0xFFC2502A),
         elevation: 0,
       ),
       body: SafeArea(
@@ -161,7 +161,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2B2B2B),
+                            color: Color(0xFF2A211C),
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -178,7 +178,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
-                            color: Color(0xFF2B2B2B),
+                            color: Color(0xFF2A211C),
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -201,7 +201,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
-                            color: Color(0xFF2B2B2B),
+                            color: Color(0xFF2A211C),
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -224,7 +224,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
-                            color: Color(0xFF2B2B2B),
+                            color: Color(0xFF2A211C),
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -245,7 +245,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         ElevatedButton(
                           onPressed: _handleChangePassword,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFE85D26),
+                            backgroundColor: const Color(0xFFC2502A),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(

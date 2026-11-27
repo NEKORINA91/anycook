@@ -4,6 +4,8 @@ import 'package:anycook/state/app_state.dart';
 import 'package:anycook/screens/discovery_screen.dart';
 import 'package:anycook/screens/signup_screen.dart';
 import 'package:anycook/screens/forgot_password_screen.dart';
+import 'package:anycook/theme/app_theme.dart';
+import 'package:anycook/widgets/ui.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,210 +33,244 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void _signIn() {
+    context.read<AppState>().loginWithUsername(
+          _usernameController.text.trim().isEmpty ? 'User' : _usernameController.text.trim(),
+          _passwordController.text,
+        );
+    _goToDiscovery();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFF8F3), Color(0xFFFFE4D1)],
+    return AuthLayout(
+      title: 'Welcome back',
+      subtitle: 'Sign in with your username.',
+      children: [
+        AuthField(
+          label: 'Username',
+          controller: _usernameController,
+          hint: 'moonmaiden',
+          textInputAction: TextInputAction.next,
+        ),
+        AuthField(
+          label: 'Password',
+          controller: _passwordController,
+          hint: '••••••••',
+          obscure: _obscurePassword,
+          onSubmitted: (_) => _signIn(),
+          suffix: IconButton(
+            tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+            icon: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                color: AppColors.muted, size: 20),
+            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
           ),
         ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Container(
-                width: 400,
-                constraints: const BoxConstraints(maxWidth: 400),
-                margin: const EdgeInsets.symmetric(horizontal: 24),
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 30,
-                      offset: const Offset(0, 12),
-                    ),
-                  ],
-                ),
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+            ),
+            child: const Text('Forgot password?'),
+          ),
+        ),
+        FilledButton(
+          onPressed: _signIn,
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+          child: const Text('Sign in'),
+        ),
+        const Row(
+          children: [
+            Expanded(child: Divider()),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Text('or', style: TextStyle(color: AppColors.muted, fontSize: 13)),
+            ),
+            Expanded(child: Divider()),
+          ],
+        ),
+        OutlinedButton(
+          onPressed: () {
+            context.read<AppState>().skipLogin();
+            _goToDiscovery();
+          },
+          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+          child: const Text('Continue as guest'),
+        ),
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            const Text('New to AnyCook?', style: TextStyle(color: AppColors.muted, fontSize: 14)),
+            TextButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SignupScreen()),
+              ),
+              child: const Text('Create an account'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Split-screen layout for sign in / sign up / forgot password:
+/// glowing brand panel on the left (top on phones), form on the right.
+class AuthLayout extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final List<Widget> children;
+  final bool showBack;
+
+  const AuthLayout({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.children,
+    this.showBack = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final wide = isWide(context);
+
+    final brand = GlowBackground(
+      base: const Color(0xFFFBF5EE),
+      child: Padding(
+        padding: EdgeInsets.all(wide ? 40 : 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: wide ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            Row(
               children: [
-                const SizedBox(height: 30),
-                Container(
-                  width: 84,
-                  height: 84,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFE85D26).withValues(alpha: 0.15),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
+                if (showBack)
+                  IconButton(
+                    tooltip: 'Back',
+                    onPressed: () => Navigator.maybePop(context),
+                    icon: const Icon(Icons.arrow_back_rounded),
                   ),
-                  child: const Text('🍳', style: TextStyle(fontSize: 40)),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'AnyCook',
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF2B2B2B),
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Whisk up an account —\ncook with what you\'ve already got.',
-                  style: TextStyle(fontSize: 15, color: Color(0xFF888888), height: 1.4),
-                ),
-                const SizedBox(height: 36),
-                const Text('Username', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                const SizedBox(height: 6),
-                TextField(
-                  controller: _usernameController,
-                  decoration: _fieldDecoration('Enter your username', Icons.person_outline),
-                ),
-                
-                const SizedBox(height: 18),
-                const Text('Password', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                const SizedBox(height: 6),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: _fieldDecoration('••••••••', Icons.lock_outline).copyWith(
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                        color: Colors.grey.shade400,
-                        size: 20,
-                      ),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
-                      );
-                    },
-                    child: Text('Forgot password?', style: TextStyle(color: Colors.grey.shade600)),
-                  ),
-                ),
-                const SizedBox(height: 28),
-                ElevatedButton(
-                    onPressed: () {
-                    context.read<AppState>().loginWithUsername(
-                          _usernameController.text,
-                          _passwordController.text,
-                        );
-                    _goToDiscovery();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE85D26),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    elevation: 0,
-                  ),
-                  
-                  child: const Text(
-                    'Sign In',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Don't have an account?", style: TextStyle(color: Colors.grey.shade600)),
-                      TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const SignupScreen()),
-                        );
-                      },
-                      child: const Text(
-                        'Sign up',
-                        style: TextStyle(color: Color(0xFFE85D26), fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: Colors.grey.shade300)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text('or', style: TextStyle(color: Colors.grey.shade400, fontSize: 13)),
-                    ),
-                    Expanded(child: Divider(color: Colors.grey.shade300)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                OutlinedButton(
-                  onPressed: () {
-                    context.read<AppState>().skipLogin();
-                    _goToDiscovery();
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: BorderSide(color: Colors.grey.shade300),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: const Text(
-                    'Continue as Guest',
-                    style: TextStyle(color: Color(0xFF2B2B2B), fontSize: 15, fontWeight: FontWeight.w600),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                const Logo(),
               ],
             ),
-          ),
-        ),
-        ),
+            SizedBox(height: wide ? 0 : 28),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Your kitchen, your rules, your recipes.',
+                    style: AppTheme.display(size: wide ? 64 : 36, weight: FontWeight.w300, height: 1.03),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Save your appliances, keep your pantry in sync and climb from Taste Tester to Head Chef.',
+                    style: TextStyle(fontSize: 16, height: 1.6, color: AppColors.muted),
+                  ),
+                ],
+              ),
+            ),
+            if (wide)
+              const Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  Tag(label: 'Taste Tester', bg: AppColors.surface, ink: AppColors.ink, fontSize: 13),
+                  Tag(label: 'Home Cook', bg: AppColors.surface, ink: AppColors.ink, fontSize: 13),
+                  Tag(label: 'Sous Chef', bg: AppColors.surface, ink: AppColors.ink, fontSize: 13),
+                  Tag(label: 'Head Chef', bg: AppColors.ink, ink: Colors.white, fontSize: 13),
+                ],
+              ),
+          ],
         ),
       ),
     );
-  }
 
-  InputDecoration _fieldDecoration(String hint, IconData icon) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-      prefixIcon: Icon(icon, color: Colors.grey.shade400, size: 20),
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide.none,
+    final form = Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: wide ? 48 : 28),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: staggerIn(context, [
+              Text(title, style: AppTheme.display(size: 32)),
+              const SizedBox(height: 6),
+              Text(subtitle, style: const TextStyle(fontSize: 15, color: AppColors.muted)),
+              const SizedBox(height: 24),
+              for (final c in children) ...[c, const SizedBox(height: 14)],
+            ]),
+          ),
+        ),
       ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide.none,
+    );
+
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: wide
+            ? Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [Expanded(flex: 11, child: brand), Expanded(flex: 9, child: form)],
+              )
+            : SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [brand, form],
+                ),
+              ),
       ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Color(0xFFE85D26), width: 1.5),
-      ),
+    );
+  }
+}
+
+/// Label + rounded text field, used on the auth screens.
+class AuthField extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+  final String? hint;
+  final bool obscure;
+  final Widget? suffix;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
+  final String? errorText;
+
+  const AuthField({
+    super.key,
+    required this.label,
+    required this.controller,
+    this.hint,
+    this.obscure = false,
+    this.suffix,
+    this.keyboardType,
+    this.textInputAction,
+    this.onSubmitted,
+    this.errorText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          obscureText: obscure,
+          keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          onSubmitted: onSubmitted,
+          decoration: InputDecoration(hintText: hint, suffixIcon: suffix, errorText: errorText),
+        ),
+      ],
     );
   }
 }

@@ -43,3 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Delivery / scratch files that shouldn't be committed
+*.patch
+*.zip
+
+# Big art source files (keep exported PNG/SVG in assets/, ignore the working files)
+*.psd
+*.clip
+*.kra
+*.procreate

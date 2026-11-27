@@ -109,7 +109,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           child: ElevatedButton(
             onPressed: _nextStep,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE85D26),
+              backgroundColor: const Color(0xFFC2502A),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
@@ -160,7 +160,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           child: ElevatedButton(
             onPressed: _nextStep,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE85D26),
+              backgroundColor: const Color(0xFFC2502A),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
@@ -174,7 +174,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SnackBar(content: Text('Code resent!')),
             );
           },
-          child: Text('Resend Code', style: TextStyle(color: const Color(0xFFE85D26), fontWeight: FontWeight.w600)),
+          child: Text('Resend Code', style: TextStyle(color: const Color(0xFFC2502A), fontWeight: FontWeight.w600)),
         ),
       ],
     );
@@ -209,7 +209,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           child: ElevatedButton(
             onPressed: _nextStep,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE85D26),
+              backgroundColor: const Color(0xFFC2502A),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
@@ -237,7 +237,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFFFF8F3), Color(0xFFFFE4D1)],
+            colors: [Color(0xFFF7F1E8), Color(0xFFEFDFCB)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),

@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:anycook/state/app_state.dart';
 import 'package:anycook/models/recipe.dart';
+import 'package:anycook/theme/app_theme.dart';
+import 'package:anycook/widgets/ui.dart';
 
 class RecipeUploadScreen extends StatefulWidget {
   const RecipeUploadScreen({super.key});
@@ -37,18 +39,22 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
 
   final List<_RecipeIngredient> _ingredients = [_RecipeIngredient()];
   final List<_RecipeStepData> _steps = [_RecipeStepData()];
-  String _applianceSearch = '';
 
   final List<String> _photos = [];
 
   final List<String> _applianceOptions = [
-    'Oven',
-    'Microwave',
-    'Air Fryer',
-    'Stovetop',
-    'Rice Cooker',
-    'Blender'
+    'Stovetop', 'Microwave', 'Kettle', 'Oven', 'Air Fryer', 'Rice Cooker', 'Blender', 'Toaster',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Keep the live preview in sync with what's typed.
+    _titleController.addListener(_refresh);
+    _timeController.addListener(_refresh);
+  }
+
+  void _refresh() => setState(() {});
 
   final List<String> _selectedAppliances = [];
 
@@ -158,331 +164,388 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F3),
-      appBar: AppBar(
-        title: const Text('Upload Recipe'),
-        backgroundColor: const Color(0xFFE85D26),
-        foregroundColor: Colors.white,
-      ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (_photos.isNotEmpty)
-                  SizedBox(
-                    height: 200,
-                    child: PageView.builder(
-                      itemCount: _photos.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            image: DecorationImage(
-                              image: NetworkImage(_photos[index]),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                if (_photos.isNotEmpty) const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(3, (index) {
-                    return GestureDetector(
-                      onTap: _addPhoto,
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: const Icon(Icons.camera_alt, color: Colors.grey),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: _addVideo,
-                  child: Container(
-                    height: 100,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: const Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.play_circle_fill, color: Colors.grey, size: 40),
-                          SizedBox(height: 8),
-                          Text('Add Video', style: TextStyle(color: Colors.grey)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text('Recipe Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Recipe Title *',
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _descriptionController,
-                  maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _timeController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                    labelText: 'Cook Time (minutes)',
-                    prefixIcon: Icon(Icons.timer),
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text('Required Appliances', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                TextField(
-                  onChanged: (query) => setState(() => _applianceSearch = query),
-                  decoration: InputDecoration(
-                    hintText: 'Search appliances...',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                if (_selectedAppliances.isNotEmpty)
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _selectedAppliances.map((a) {
-                      return Chip(
-                        label: Text(a),
-                        onDeleted: () => setState(() => _selectedAppliances.remove(a)),
-                        backgroundColor: const Color(0xFFE85D26).withValues(alpha: 0.1),
-                      );
-                    }).toList(),
-                  ),
-                if (_applianceSearch.isNotEmpty)
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _applianceOptions
-                        .where((a) =>
-                            a.toLowerCase().contains(_applianceSearch.toLowerCase()) &&
-                            !_selectedAppliances.contains(a))
-                        .map((a) {
-                      return ActionChip(
-                        label: Text(a),
-                        onPressed: () => setState(() {
-                          _selectedAppliances.add(a);
-                          _applianceSearch = '';
-                        }),
-                      );
-                    }).toList(),
-                  ),
-                const SizedBox(height: 24),
-                const Text('Ingredients *', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                ..._ingredients.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  _RecipeIngredient ingredient = entry.value;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: TextField(
-                            controller: ingredient.nameController,
-                            decoration: const InputDecoration(
-                              hintText: 'Name',
-                              border: OutlineInputBorder(),
-                              filled: true,
-                              fillColor: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          flex: 1,
-                          child: TextField(
-                            controller: ingredient.amountController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            decoration: const InputDecoration(
-                              hintText: 'Amount',
-                              border: OutlineInputBorder(),
-                              filled: true,
-                              fillColor: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: DropdownButton<String>(
-                            value: ingredient.unit,
-                            underline: const SizedBox(),
-                            onChanged: (String? newValue) {
-                              if (newValue != null) {
-                                setState(() {
-                                  ingredient.unit = newValue;
-                                });
-                              }
-                            },
-                            items: _unitOptions.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.red),
-                          onPressed: () {
-                            setState(() {
-                              if (_ingredients.length > 1) {
-                                ingredient.dispose();
-                                _ingredients.removeAt(index);
-                              }
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _ingredients.add(_RecipeIngredient());
-                    });
-                  },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Ingredient'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFE85D26),
-                    side: const BorderSide(color: Color(0xFFE85D26)),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text('Steps *', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                ..._steps.asMap().entries.map((entry) {
-                  int index = entry.key;
-                  _RecipeStepData step = entry.value;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 14.0, right: 8.0),
-                          child: Text(
-                            'Step ${index + 1}:',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Expanded(
-                          child: TextField(
-                            controller: step.titleController,
-                            decoration: const InputDecoration(
-                              hintText: 'Step instruction',
-                              border: OutlineInputBorder(),
-                              filled: true,
-                              fillColor: Colors.white,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.red),
-                          onPressed: () {
-                            setState(() {
-                              if (_steps.length > 1) {
-                                step.dispose();
-                                _steps.removeAt(index);
-                              }
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _steps.add(_RecipeStepData());
-                    });
-                  },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Step'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFE85D26),
-                    side: const BorderSide(color: Color(0xFFE85D26)),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _saveRecipe,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE85D26),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('Save Recipe', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
+    final wide = isWide(context);
+    final title = _titleController.text.trim();
+    final time = _timeController.text.trim();
+
+    Widget sectionTitle(String n, String t) =>
+        Text('$n · $t', style: AppTheme.display(size: 22));
+
+    final basics = SectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          sectionTitle('1', 'The basics'),
+          const SizedBox(height: 16),
+          Split(
+            breakpoint: 520,
+            gap: 12,
+            firstFlex: 3,
+            secondFlex: 1,
+            first: _Labeled(
+              label: 'Recipe name',
+              child: TextField(controller: _titleController, decoration: const InputDecoration(hintText: 'Microwave mug brownie')),
+            ),
+            second: _Labeled(
+              label: 'Time (min)',
+              child: TextField(
+                controller: _timeController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(hintText: '5'),
+              ),
             ),
           ),
+          const SizedBox(height: 14),
+          _Labeled(
+            label: 'Short description (optional)',
+            child: TextField(
+              controller: _descriptionController,
+              minLines: 2,
+              maxLines: 4,
+              decoration: const InputDecoration(hintText: 'Rich, gooey and ready before the kettle boils'),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Pressable(
+            onTap: _addPhoto,
+            child: Container(
+              height: 140,
+              decoration: BoxDecoration(
+                color: AppColors.bg,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFFD6CEC5), width: 1.5),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.add_photo_alternate_outlined, color: AppColors.accent, size: 28),
+                  const SizedBox(height: 8),
+                  Text(
+                    _photos.isEmpty ? 'Add photos (up to 3)' : '${_photos.length} of 3 photos added. Tap to add another',
+                    style: const TextStyle(fontSize: 14, color: AppColors.muted),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_photos.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                for (var i = 0; i < _photos.length; i++)
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          _photos[i],
+                          width: 96,
+                          height: 72,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => SizedBox(
+                            width: 96,
+                            height: 72,
+                            child: FoodArt(seed: 'photo$i', height: 72, radius: 12, iconSize: 22),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 2,
+                        right: 2,
+                        child: IconButton(
+                          tooltip: 'Remove photo',
+                          onPressed: () => setState(() => _photos.removeAt(i)),
+                          icon: const Icon(Icons.close_rounded, size: 14, color: AppColors.ink),
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.surface,
+                            fixedSize: const Size(26, 26),
+                            minimumSize: const Size(26, 26),
+                            padding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: _addVideo,
+              icon: const Icon(Icons.videocam_outlined, size: 18),
+              label: const Text('Add a video'),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final appliances = SectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          sectionTitle('2', 'Appliances needed'),
+          const SizedBox(height: 6),
+          const Text('Pick everything the recipe needs. Fewer appliances = more kitchens can make it.',
+              style: TextStyle(fontSize: 14, color: AppColors.muted)),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final a in _applianceOptions)
+                FilterPill(
+                  label: a,
+                  selected: _selectedAppliances.contains(a),
+                  onTap: () => setState(() {
+                    if (_selectedAppliances.contains(a)) {
+                      _selectedAppliances.remove(a);
+                    } else {
+                      _selectedAppliances.add(a);
+                    }
+                  }),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    final ingredients = SectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          sectionTitle('3', 'Ingredients'),
+          const SizedBox(height: 14),
+          for (var index = 0; index < _ingredients.length; index++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 76,
+                    child: TextField(
+                      controller: _ingredients[index].amountController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: const InputDecoration(hintText: '2'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    height: 54,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.lineStrong),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _ingredients[index].unit,
+                        borderRadius: BorderRadius.circular(14),
+                        items: [
+                          for (final u in _unitOptions) DropdownMenuItem(value: u, child: Text(u)),
+                        ],
+                        onChanged: (v) => setState(() => _ingredients[index].unit = v ?? 'g'),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _ingredients[index].nameController,
+                      decoration: const InputDecoration(hintText: 'Ingredient, like flour'),
+                    ),
+                  ),
+                  if (_ingredients.length > 1)
+                    IconButton(
+                      tooltip: 'Remove ingredient',
+                      icon: const Icon(Icons.close_rounded, color: AppColors.muted),
+                      onPressed: () {
+                        final removed = _ingredients.removeAt(index);
+                        setState(() {});
+                        WidgetsBinding.instance.addPostFrameCallback((_) => removed.dispose());
+                      },
+                    ),
+                ],
+              ),
+            ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              onPressed: () => setState(() => _ingredients.add(_RecipeIngredient())),
+              child: const Text('+ Add ingredient'),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final steps = SectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          sectionTitle('4', 'Steps'),
+          const SizedBox(height: 14),
+          for (var index = 0; index < _steps.length; index++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 44,
+                    child: Text(
+                      (index + 1).toString().padLeft(2, '0'),
+                      style: AppTheme.display(size: 30, weight: FontWeight.w300, color: AppColors.accent),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: _steps[index].titleController,
+                      minLines: 2,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        hintText: index == 0 ? 'Mix the dry ingredients in a large mug' : 'Describe the next step',
+                      ),
+                    ),
+                  ),
+                  if (_steps.length > 1)
+                    IconButton(
+                      tooltip: 'Remove step',
+                      icon: const Icon(Icons.close_rounded, color: AppColors.muted),
+                      onPressed: () {
+                        final removed = _steps.removeAt(index);
+                        setState(() {});
+                        WidgetsBinding.instance.addPostFrameCallback((_) => removed.dispose());
+                      },
+                    ),
+                ],
+              ),
+            ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              onPressed: () => setState(() => _steps.add(_RecipeStepData())),
+              child: const Text('+ Add step'),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final preview = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Eyebrow('Live preview'),
+        const SizedBox(height: 12),
+        SectionCard(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FoodArt(seed: title.isEmpty ? 'preview' : title, height: 180),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 14, 6, 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title.isEmpty ? 'Your recipe name' : title,
+                        style: AppTheme.display(size: 19, weight: FontWeight.w500)),
+                    const SizedBox(height: 5),
+                    Text(
+                      '${time.isEmpty ? '–' : time} min · '
+                      '${_selectedAppliances.isEmpty ? 'Any kitchen' : _selectedAppliances.join(', ')} · by you',
+                      style: const TextStyle(fontSize: 13, color: AppColors.muted),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        SectionCard(
+          color: AppColors.lilac,
+          borderColor: null,
+          padding: const EdgeInsets.all(16),
+          child: const Text(
+            'Recipes that only need a microwave or kettle reach the most kitchens.',
+            style: TextStyle(fontSize: 14, height: 1.55, color: AppColors.lilacDeep),
+          ),
+        ),
+      ],
+    );
+
+    return AppShell(
+      current: NavTab.upload,
+      body: PageWidth(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(height: wide ? 24 : 8),
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.end,
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                const PageTitle('Share a recipe'),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    OutlinedButton(onPressed: () => showSoon(context, 'Saving drafts'), child: const Text('Save draft')),
+                    FilledButton(onPressed: _saveRecipe, child: const Text('Publish')),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: wide ? 32 : 20),
+            Split(
+              firstFlex: 2,
+              secondFlex: 1,
+              gap: 28,
+              first: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  basics,
+                  const SizedBox(height: 20),
+                  appliances,
+                  const SizedBox(height: 20),
+                  ingredients,
+                  const SizedBox(height: 20),
+                  steps,
+                ],
+              ),
+              second: preview,
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class _Labeled extends StatelessWidget {
+  final String label;
+  final Widget child;
+  const _Labeled({required this.label, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 8),
+        child,
+      ],
     );
   }
 }

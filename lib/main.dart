@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:anycook/state/app_state.dart';
 import 'package:anycook/screens/login_screen.dart';
+import 'package:anycook/theme/app_theme.dart';
 
 void main() {
   runApp(
@@ -20,11 +21,7 @@ class AnyCookApp extends StatelessWidget {
     return MaterialApp(
       title: 'AnyCook',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFE85D26)),
-        useMaterial3: true,
-        fontFamily: 'Roboto',
-      ),
+      theme: AppTheme.light(),
       home: const LoginScreen(),
     );
   }
