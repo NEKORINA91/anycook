@@ -247,7 +247,7 @@ class _KitchenSetupScreenState extends State<KitchenSetupScreen> {
             SizedBox(height: wide ? 24 : 8),
             const PageTitle("Tell us what you cook with. We'll do the rest.", eyebrow: 'My kitchen'),
             SizedBox(height: wide ? 36 : 24),
-            Split(
+            SplitLayout(
               firstFlex: 2,
               secondFlex: 1,
               gap: 28,

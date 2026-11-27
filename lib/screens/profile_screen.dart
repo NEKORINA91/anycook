@@ -75,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         base: const Color(0xFFFBF5EE),
         child: Padding(
           padding: EdgeInsets.all(wide ? 32 : 22),
-          child: Split(
+          child: SplitLayout(
             align: CrossAxisAlignment.center,
             breakpoint: 760,
             gap: 28,
@@ -299,7 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 24),
             ladder,
             SizedBox(height: wide ? 40 : 28),
-            Split(firstFlex: 2, secondFlex: 1, gap: 28, first: myRecipes, second: settings),
+            SplitLayout(firstFlex: 2, secondFlex: 1, gap: 28, first: myRecipes, second: settings),
           ]),
         ),
       ),

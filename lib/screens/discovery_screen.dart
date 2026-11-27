@@ -77,7 +77,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           PageWidth(
             child: Padding(
               padding: EdgeInsets.only(top: wide ? 48 : 16, bottom: wide ? 32 : 20),
-              child: Split(
+              child: SplitLayout(
                 align: CrossAxisAlignment.center,
                 gap: 48,
                 first: _HeroText(

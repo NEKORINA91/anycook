@@ -177,7 +177,7 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
         children: [
           sectionTitle('1', 'The basics'),
           const SizedBox(height: 16),
-          Split(
+          SplitLayout(
             breakpoint: 520,
             gap: 12,
             firstFlex: 3,
@@ -507,7 +507,7 @@ class _RecipeUploadScreenState extends State<RecipeUploadScreen> {
               ],
             ),
             SizedBox(height: wide ? 32 : 20),
-            Split(
+            SplitLayout(
               firstFlex: 2,
               secondFlex: 1,
               gap: 28,

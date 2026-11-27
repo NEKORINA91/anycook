@@ -44,7 +44,7 @@ class PageWidth extends StatelessWidget {
 }
 
 /// Two columns side by side when there's room, stacked otherwise.
-class Split extends StatelessWidget {
+class SplitLayout extends StatelessWidget {
   final Widget first;
   final Widget second;
   final int firstFlex;
@@ -53,7 +53,7 @@ class Split extends StatelessWidget {
   final double gap;
   final CrossAxisAlignment align;
 
-  const Split({
+  const SplitLayout({
     super.key,
     required this.first,
     required this.second,
@@ -395,7 +395,7 @@ class Avatar extends StatelessWidget {
   const Avatar({super.key, required this.name, this.size = 40, this.dark = false});
 
   String get _initials {
-    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+        final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
     if (parts.isEmpty) return '?';
     if (parts.length == 1) {
       final p = parts.first;

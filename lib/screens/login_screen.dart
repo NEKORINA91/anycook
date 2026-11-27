@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-/// Split-screen layout for sign in / sign up / forgot password:
+/// SplitLayout-screen layout for sign in / sign up / forgot password:
 /// glowing brand panel on the left (top on phones), form on the right.
 class AuthLayout extends StatelessWidget {
   final String title;
